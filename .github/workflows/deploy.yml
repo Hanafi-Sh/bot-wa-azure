@@ -1,0 +1,39 @@
+name: Deploy to Azure VPS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        with:
+          host: ${{ secrets.AZURE_VM_IP }}
+          username: ${{ secrets.AZURE_VM_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: MONGODB_URI,DEEPSEEK_API_KEY,OPENROUTER_API_KEY
+          script: |
+            cd ~/bot-wa
+            # Pastikan kode terbaru di-pull
+            git pull origin main || git reset --hard origin/main
+            
+            # Buat file .env secara otomatis dari Environment Variables
+            echo "MONGODB_URI=$MONGODB_URI" > .env
+            echo "DEEPSEEK_API_KEY=$DEEPSEEK_API_KEY" >> .env
+            echo "OPENROUTER_API_KEY=$OPENROUTER_API_KEY" >> .env
+            
+            # Install dependencies & restart bot
+            export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+            npm install
+            pm2 restart ecosystem.config.js --update-env
