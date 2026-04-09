@@ -176,6 +176,7 @@ console.log('[SYSTEM] Menyiapkan WhatsApp Client dengan LocalAuth (VPS Mode)...'
 client = new Client({
     authStrategy: new LocalAuth({ clientId: 'hanbot-vps' }),
     puppeteer: {
+        protocolTimeout: 120000, // Naikkan timeout jadi 2 menit (default 30 detik)
         args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
@@ -183,7 +184,13 @@ client = new Client({
             '--disable-gpu',
             '--no-first-run',
             '--no-zygote',
-            '--disable-extensions'
+            '--disable-extensions',
+            '--single-process',           // Hemat RAM: jalankan dalam 1 proses
+            '--disable-background-timer-throttling',
+            '--disable-backgrounding-occluded-windows',
+            '--disable-renderer-backgrounding',
+            '--memory-pressure-off',
+            '--js-flags=--max-old-space-size=256' // Batasi heap JS
         ],
         executablePath: process.env.GOOGLE_CHROME_BIN || (fs.existsSync('/usr/bin/google-chrome-stable') ? '/usr/bin/google-chrome-stable' : '/usr/bin/chromium-browser')
     }
