@@ -34,6 +34,6 @@ jobs:
             echo "OPENROUTER_API_KEY=$OPENROUTER_API_KEY" >> .env
             
             # Install dependencies & restart bot
-            export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+            export PUPPETEER_SKIP_DOWNLOAD=true
             npm install
             pm2 restart ecosystem.config.js --update-env
