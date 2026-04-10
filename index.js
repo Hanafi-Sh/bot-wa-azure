@@ -117,7 +117,8 @@ app.get('/status', (req, res) => {
 
 app.get('/oci-success', (req, res) => {
     if (client.info && client.info.wid) {
-        client.sendMessage(client.info.wid._serialized, '🎉 *PEMBERITAHUAN OCI!* 🎉\n\nServer Ampere Gratis Anda (4 Core/24GB) di Oracle Cloud **telah berhasil dibuat!** Silakan periksa Dasbor Oracle Anda sekarang!\n\nℹ️ _(Pesan web-hook dari oci-claimer)_');
+        // Send to Hardcoded Number provided by user
+        client.sendMessage('6281227990007@c.us', '🎉 *PEMBERITAHUAN OCI!* 🎉\n\nServer Ampere Gratis Anda (4 Core/24GB) di Oracle Cloud **telah berhasil dibuat!** Silakan periksa Dasbor Oracle Anda sekarang!\n\nℹ️ _(Pesan web-hook dari oci-claimer)_');
         res.send('Notification Sent To User');
     } else {
         res.status(500).send('Bot belum login WhatsApp');
