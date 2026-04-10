@@ -1,0 +1,6 @@
+[DEFAULT]
+user=ocid1.user.oc1..aaaaaaaach2qtmgm2w3av6wjw5uit7bdt7n6wez45uolhiyelu43i5bv6nda
+fingerprint=78:c0:54:fa:65:f1:d5:5a:21:c0:fb:5f:f7:b2:7f:25
+tenancy=ocid1.tenancy.oc1..aaaaaaaaf7lk3o4e2fmn77okpakyaqlbkrpdvrxpfn4pzjjrwthbvwafqhtq
+region=ap-singapore-1
+key_file=/home/myubuntu/.oci/oci_api_key.pem

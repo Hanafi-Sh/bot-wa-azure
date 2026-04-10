@@ -115,6 +115,15 @@ app.get('/status', (req, res) => {
     res.json({ ready: isReady });
 });
 
+app.get('/oci-success', (req, res) => {
+    if (client.info && client.info.wid) {
+        client.sendMessage(client.info.wid._serialized, '🎉 *PEMBERITAHUAN OCI!* 🎉\n\nServer Ampere Gratis Anda (4 Core/24GB) di Oracle Cloud **telah berhasil dibuat!** Silakan periksa Dasbor Oracle Anda sekarang!\n\nℹ️ _(Pesan web-hook dari oci-claimer)_');
+        res.send('Notification Sent To User');
+    } else {
+        res.status(500).send('Bot belum login WhatsApp');
+    }
+});
+
 app.get('/', (req, res) => {
     if (qrCodeImage) {
         // Jika ada QR Code, tampilkan di web HTML
