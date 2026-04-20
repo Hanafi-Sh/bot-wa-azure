@@ -167,7 +167,7 @@ app.listen(port, () => {
     console.log(`Web server berjalan di port ${port}`);
 });
 
-// Konfigurasi Puppeteer khusus untuk Heroku dan Railway
+// Konfigurasi Puppeteer khusus untuk Azure VPS, Heroku dan Railway
 let client;
 
 // Ambil URL Mongodb dari Environment Variable (opsional untuk VPS)
@@ -185,6 +185,8 @@ if (mongoURI) {
 console.log('[SYSTEM] Menyiapkan WhatsApp Client dengan LocalAuth (VPS Mode)...');
 client = new Client({
     authStrategy: new LocalAuth({ clientId: 'hanbot-vps' }),
+    authTimeoutMs: 300000, // 5 menit (Sangat penting untuk VPS lambat)
+    qrTimeoutMs: 0,        // QR Code tidak akan kadaluarsa otomatis
     puppeteer: {
         protocolTimeout: 120000, // Naikkan timeout jadi 2 menit (default 30 detik)
         args: [
@@ -236,14 +238,23 @@ function setupClientEvents(client) {
 
     client.on('auth_failure', (msg) => {
         console.error('⚠️ Autentikasi gagal! Sesi mungkin kedaluwarsa atau korup:', msg);
-        console.log('🔄 Sesi korup akan dihapus, silakan scan ulang...');
+        console.log('🔄 Menghapus sesi korup secara otomatis agar bisa scan ulang...');
+        const sessionPath = path.join(__dirname, '.wwebjs_auth', 'session-hanbot-vps');
+        if (fs.existsSync(sessionPath)) {
+            try {
+                fs.rmSync(sessionPath, { recursive: true, force: true });
+                console.log('✅ Folder sesi korup telah dibersihkan.');
+            } catch (err) {
+                console.error('❌ Gagal menghapus folder sesi:', err.message);
+            }
+        }
         qrCodeImage = '';
     });
 
     client.on('disconnected', (reason) => {
         console.log('❌ Bot terputus dari WhatsApp! Alasan:', reason);
         qrCodeImage = '';
-        console.log('🔄 Menunggu Heroku merestart Dyno atau inisialisasi ulang otomatis...');
+        console.log('🔄 Menunggu Azure VPS merestart PM2 atau inisialisasi ulang otomatis...');
     });
     // Variable declarations needed by message handler
     // (declared at module scope above setupClientEvents)
@@ -317,7 +328,7 @@ function setupClientEvents(client) {
                     const batasMemoriBytes = execSync('cat /sys/fs/cgroup/memory.max 2>/dev/null || echo max').toString().trim();
                     batasMemoriMB = batasMemoriBytes === 'max' ? 'Hening' : (parseInt(batasMemoriBytes) / 1024 / 1024).toFixed(2) + ' MB';
                 } catch (e) {
-                    // Fallback jika cgroup tidak bisa dibaca (seperti di Heroku)
+                    // Fallback jika cgroup tidak bisa dibaca (seperti di VPS/Cloud)
                     memoriTerpakaiMB = (process.memoryUsage().rss / 1024 / 1024).toFixed(2);
                 }
 
@@ -987,6 +998,12 @@ function setupClientEvents(client) {
             ];
 
             try {
+                // GUARD: Pastikan bot sedang online dan browser benar-benar aktif
+                if (!client.info || !client.info.wid || !client.pupPage || client.pupPage.isClosed()) {
+                    console.log('[CRON] Skip pesan terjadwal karena bot sedang offline atau browser belum siap.');
+                    return;
+                }
+
                 // Mengambil data grup
                 const chatGrup = await client.getChatById(idGrup);
 
