@@ -196,13 +196,7 @@ client = new Client({
             '--disable-gpu',
             '--no-first-run',
             '--no-zygote',
-            '--disable-extensions',
-            '--single-process',           // Hemat RAM: jalankan dalam 1 proses
-            '--disable-background-timer-throttling',
-            '--disable-backgrounding-occluded-windows',
-            '--disable-renderer-backgrounding',
-            '--memory-pressure-off',
-            '--js-flags=--max-old-space-size=256' // Batasi heap JS
+            '--disable-extensions'
         ],
         executablePath: process.env.GOOGLE_CHROME_BIN || (fs.existsSync('/usr/bin/google-chrome-stable') ? '/usr/bin/google-chrome-stable' : '/usr/bin/chromium-browser')
     }
