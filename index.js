@@ -218,6 +218,11 @@ function setupClientEvents(client) {
     client.on('qr', (qr) => {
         console.log('✅ QR Code baru telah dibuat! Silakan scan di bawah ini menggunakan aplikasi WhatsApp HP Anda:');
         qrcodeTerminal.generate(qr, { small: true });
+        qrcode.toDataURL(qr, (err, url) => {
+            if (!err) {
+                qrCodeImage = url;
+            }
+        });
     });
 
     client.on('authenticated', () => {
