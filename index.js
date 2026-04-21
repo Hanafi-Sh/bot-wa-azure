@@ -188,6 +188,7 @@ client = new Client({
     authTimeoutMs: 300000, // 5 menit (Sangat penting untuk VPS lambat)
     qrTimeoutMs: 0,        // QR Code tidak akan kadaluarsa otomatis
     puppeteer: {
+        dumpio: true,
         protocolTimeout: 120000, // Naikkan timeout jadi 2 menit (default 30 detik)
         args: [
             '--no-sandbox',
@@ -196,9 +197,14 @@ client = new Client({
             '--disable-gpu',
             '--no-first-run',
             '--no-zygote',
-            '--disable-extensions'
-        ],
-        executablePath: process.env.GOOGLE_CHROME_BIN || (fs.existsSync('/usr/bin/google-chrome-stable') ? '/usr/bin/google-chrome-stable' : '/usr/bin/chromium-browser')
+            '--disable-extensions',
+            '--single-process',
+            '--disable-background-timer-throttling',
+            '--disable-backgrounding-occluded-windows',
+            '--disable-renderer-backgrounding',
+            '--memory-pressure-off',
+            '--js-flags=--max-old-space-size=256'
+        ]
     }
 });
 
